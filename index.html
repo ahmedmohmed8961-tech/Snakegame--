@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>منظومة ايمكس // CYBER SNAKE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cairo:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            background-color: #030a04;
+            color: #00ff41;
+            font-family: 'Share Tech Mono', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .terminal-box {
+            border: 2px solid #00ff41;
+            box-shadow: 0 0 25px rgba(0, 255, 65, 0.4), inset 0 0 10px rgba(0, 255, 65, 0.1);
+            background: rgba(3, 14, 6, 0.98);
+            padding: 18px 14px;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 370px;
+            position: relative;
+        }
+
+        .header-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+            direction: ltr;
+        }
+
+        .dots {
+            color: #ff3333;
+            letter-spacing: 3px;
+        }
+
+        .divider {
+            width: 100%;
+            border: none;
+            border-top: 1px solid rgba(0, 255, 65, 0.35);
+            margin: 8px 0 14px 0;
+        }
+
+        /* 1. شاشة تسجيل الدخول */
+        #loginScreen {
+            width: 100%;
+            text-align: center;
+        }
+
+        .glow-title {
+            font-family: 'Cairo', sans-serif;
+            font-size: 26px;
+            font-weight: 800;
+            color: #55ff88;
+            text-shadow: 0 0 12px rgba(0, 255, 65, 0.6);
+            margin-bottom: 6px;
+        }
+
+        .sub-code {
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            color: rgba(0, 255, 65, 0.85);
+            margin-bottom: 20px;
+            direction: ltr;
+        }
+
+        .instruction {
+            font-family: 'Cairo', sans-serif;
+            font-size: 15px;
+            margin-bottom: 14px;
+            color: #bbfed0;
+        }
+
+        .terminal-input {
+            width: 100%;
+            background: rgba(0, 25, 8, 0.85);
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 12px;
+            font-family: 'Cairo', 'Share Tech Mono', sans-serif;
+            font-size: 17px;
+            text-align: center;
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+            margin-bottom: 16px;
+            border-radius: 4px;
+        }
+
+        .terminal-btn {
+            width: 100%;
+            background-color: #00ff41;
+            color: #020703;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 12px;
+            border: none;
+            cursor: pointer;
+            letter-spacing: 2px;
+            box-shadow: 0 0 16px rgba(0, 255, 65, 0.5);
+            transition: 0.2s all;
+            border-radius: 4px;
+        }
+
+        .terminal-btn:active {
+            background-color: #33ff66;
+            box-shadow: 0 0 25px rgba(0, 255, 65, 0.9);
+        }
+
+        .status-msg {
+            font-size: 12px;
+            margin-top: 16px;
+            letter-spacing: 1px;
+            min-height: 18px;
+            direction: ltr;
+        }
+
+        .error-shake {
+            color: #ff3344 !important;
+            animation: shake 0.3s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* 2. شاشة التحميل (ACCESS CHECK) */
+        #loadingScreen {
+            display: none;
+            width: 100%;
+            text-align: center;
+            padding: 15px 0;
+        }
+
+        .access-check-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 26px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            color: #55ff88;
+            text-shadow: 0 0 10px #00ff41, 0 0 20px #00ff41;
+            margin-top: 10px;
+        }
+
+        .logging-in-text {
+            font-family: 'Cairo', sans-serif;
+            font-size: 17px;
+            color: #bbfed0;
+            margin: 18px 0 24px 0;
+        }
+
+        .progress-border {
+            width: 100%;
+            height: 30px;
+            border: 2px solid #00ff41;
+            padding: 3px;
+            box-shadow: 0 0 16px rgba(0, 255, 65, 0.45);
+            background: rgba(0, 20, 5, 0.85);
+            margin-bottom: 14px;
+            border-radius: 4px;
+        }
+
+        .progress-inner-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #00ff41;
+            box-shadow: 0 0 16px #00ff41;
+            transition: width 0.03s linear;
+        }
+
+        .progress-pct-number {
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            color: #00ff41;
+            margin-bottom: 18px;
+            direction: ltr;
+        }
+
+        .verifying-text {
+            font-size: 11px;
+            letter-spacing: 1.5px;
+            color: rgba(0, 255, 65, 0.85);
+            direction: ltr;
+        }
+
+        /* 3. شاشة اللعبة */
+        #gameArea {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .top-controls {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .score-board {
+            flex-grow: 1;
+            display: flex;
+            justify-content: space-around;
+            background: rgba(0, 25, 8, 0.85);
+            border: 1px solid rgba(0, 255, 65, 0.35);
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            direction: ltr;
+            border-radius: 4px;
+            margin-left: 8px;
+        }
+
+        .settings-btn {
+            background: rgba(0, 25, 8, 0.85);
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #gameCanvas {
+            border: 2px solid #00ff41;
+            background-color: #000d04;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.25);
+            display: block;
+            touch-action: none;
+        }
+
+        .swipe-hint {
+            font-family: 'Cairo', sans-serif;
+            font-size: 12px;
+            color: rgba(0, 255, 65, 0.8);
+            margin-top: 8px;
+        }
+
+        /* نافذة الإعدادات */
+        #settingsModal {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 10, 3, 0.95);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 25;
+            border-radius: 6px;
+        }
+
+        .modal-title {
+            font-family: 'Cairo', sans-serif;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #55ff88;
+        }
+
+        .speed-options {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .speed-btn {
+            background: rgba(0, 30, 10, 0.8);
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 8px 14px;
+            border-radius: 4px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .speed-btn.active {
+            background: #00ff41;
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 10px #00ff41;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 6px 18px;
+            border-radius: 4px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* نافذة الخسارة */
+        #gameOverOverlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.88);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            border-radius: 6px;
+        }
+
+        .game-over-text {
+            color: #ff3344;
+            font-size: 22px;
+            font-weight: bold;
+            text-shadow: 0 0 12px #ff3344;
+            margin-bottom: 14px;
+            letter-spacing: 2px;
+        }
+
+        .restart-btn {
+            background-color: #00ff41;
+            color: #000;
+            border: none;
+            padding: 10px 22px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: 0 0 15px #00ff41;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="terminal-box">
+        
+        <div class="header-bar">
+            <span><span class="dots">• • •</span> EMIX TERMINAL</span>
+            <span>SYSTEM // LOCKED</span>
+        </div>
+
+        <hr class="divider">
+
+        <!-- 1. شاشة الدخول -->
+        <div id="loginScreen">
+            <h1 class="glow-title">منظومة ايمكس</h1>
+            <div class="sub-code">RESTRICTED SECTOR // AUTH REQUIRED</div>
+
+            <div class="instruction">[ أدخل رمز المرور لتفعيل اللعبة ]</div>
+
+            <input type="password" id="passInput" class="terminal-input" placeholder="اكتب الباسورد هنا...">
+
+            <button class="terminal-btn" onclick="checkAuth()">[ UNLOCK SYSTEM ]</button>
+
+            <div class="status-msg" id="statusBox">SYSTEM STATUS: LOCKED</div>
+        </div>
+
+        <!-- 2. شاشة شريط التحميل ACCESS CHECK -->
+        <div id="loadingScreen">
+            <div class="access-check-title">ACCESS CHECK</div>
+            <div class="logging-in-text">جارٍ تهيئة النظام وتحميل اللعبة . . .</div>
+
+            <div class="progress-border">
+                <div class="progress-inner-bar" id="progressBar"></div>
+            </div>
+
+            <div class="progress-pct-number" id="progressText">0%</div>
+
+            <div class="verifying-text">
+                AUTHENTICATING // INITIALIZING ENGINE
+            </div>
+        </div>
+
+        <!-- 3. شاشة اللعبة -->
+        <div id="gameArea">
+            <div class="top-controls">
+                <button class="settings-btn" onclick="openSettings()">⚙️</button>
+                <div class="score-board">
+                    <span>SCORE: <span id="currentScore">0</span></span>
+                    <span>BEST: <span id="highScore">0</span></span>
+                </div>
+            </div>
+
+            <canvas id="gameCanvas" width="300" height="300"></canvas>
+            <div class="swipe-hint">اسحب لمسة سريعة في أي اتجاه للتحكم</div>
+        </div>
+
+        <!-- نافذة الإعدادات -->
+        <div id="settingsModal">
+            <div class="modal-title">سرعة الثعبان</div>
+            <div class="speed-options">
+                <button class="speed-btn" id="spd-slow" onclick="setSpeed(130, 'spd-slow')">بطيء</button>
+                <button class="speed-btn active" id="spd-med" onclick="setSpeed(90, 'spd-med')">متوسط</button>
+                <button class="speed-btn" id="spd-fast" onclick="setSpeed(60, 'spd-fast')">سريع</button>
+            </div>
+            <button class="close-btn" onclick="closeSettings()">حفظ وإغلاق</button>
+        </div>
+
+        <!-- نافذة الخسارة -->
+        <div id="gameOverOverlay">
+            <div class="game-over-text">SYSTEM OVERLOAD</div>
+            <button class="restart-btn" onclick="restartGame()">إعادة المحاولة</button>
+        </div>
+
+    </div>
+
+    <script>
+        // التحقق من كلمة السر وبدء شريط التحميل
+        function checkAuth() {
+            const input = document.getElementById("passInput").value.trim().toLowerCase();
+            const statusBox = document.getElementById("statusBox");
+
+            if (input === "اخوياايمكس" || input === "اخويا ايمكس" || input === "akhooyaeimx" || input === "akhoyaemix") {
+                statusBox.textContent = "ACCESS GRANTED // INITIALIZING...";
+                statusBox.style.color = "#00ff41";
+
+                setTimeout(() => {
+                    document.getElementById("loginScreen").style.display = "none";
+                    document.getElementById("loadingScreen").style.display = "block";
+                    startLoadingBar();
+                }, 300);
+            } else {
+                statusBox.textContent = "ACCESS DENIED // WRONG KEY";
+                statusBox.classList.add("error-shake");
+                setTimeout(() => statusBox.classList.remove("error-shake"), 500);
+            }
+        }
+
+        // تشغيل عداد التحميل من 0 إلى 100%
+        function startLoadingBar() {
+            const bar = document.getElementById("progressBar");
+            const text = document.getElementById("progressText");
+            let progress = 0;
+
+            const timer = setInterval(() => {
+                progress++;
+                bar.style.width = progress + "%";
+                text.textContent = progress + "%";
+
+                if (progress >= 100) {
+                    clearInterval(timer);
+                    setTimeout(() => {
+                        document.getElementById("loadingScreen").style.display = "none";
+                        document.getElementById("gameArea").style.display = "flex";
+                        initGame();
+                    }, 350);
+                }
+            }, 25);
+        }
+
+        document.getElementById("passInput").addEventListener("keyup", function(e) {
+            if (e.key === "Enter") checkAuth();
+        });
+
+        // محرك لعبة الثعبان
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const gridSize = 15;
+        const tileCount = canvas.width / gridSize;
+
+        let snake = [];
+        let food = { x: 5, y: 5 };
+        let dx = 1;
+        let dy = 0;
+        let nextDx = 1;
+        let nextDy = 0;
+        let score = 0;
+        let gameSpeed = 90; // سرعة متوسطة افتراضية سريعة ومريحة
+        let bestScore = localStorage.getItem("emix_snake_best") || 0;
+        document.getElementById("highScore").textContent = bestScore;
+
+        let gameInterval = null;
+        let isGameOver = false;
+
+        function initGame() {
+            snake = [
+                { x: 8, y: 10 },
+                { x: 7, y: 10 },
+                { x: 6, y: 10 }
+            ];
+            dx = 1; dy = 0;
+            nextDx = 1; nextDy = 0;
+            score = 0;
+            isGameOver = false;
+            document.getElementById("currentScore").textContent = score;
+            document.getElementById("gameOverOverlay").style.display = "none";
+            spawnFood();
+            
+            if (gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(gameLoop, gameSpeed);
+        }
+
+        function spawnFood() {
+            food.x = Math.floor(Math.random() * tileCount);
+            food.y = Math.floor(Math.random() * tileCount);
+
+            for (let part of snake) {
+                if (part.x === food.x && part.y === food.y) {
+                    spawnFood();
+                    break;
+                }
+            }
+        }
+
+        function gameLoop() {
+            dx = nextDx;
+            dy = nextDy;
+
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+            // الاصطدام بالجدران
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                endGame();
+                return;
+            }
+
+            // الاصطدام بالجسم
+            for (let i = 0; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    endGame();
+                    return;
+                }
+            }
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                document.getElementById("currentScore").textContent = score;
+                if (score > bestScore) {
+                    bestScore = score;
+                    localStorage.setItem("emix_snake_best", bestScore);
+                    document.getElementById("highScore").textContent = bestScore;
+                }
+                spawnFood();
+            } else {
+                snake.pop();
+            }
+
+            draw();
+        }
+
+        function draw() {
+            ctx.fillStyle = "#000d04";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // شبكة واضحة
+            ctx.strokeStyle = "rgba(0, 255, 65, 0.08)";
+            for(let i = 0; i < canvas.width; i += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i); ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+
+            // الطعام
+            ctx.fillStyle = "#55ff99";
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = "#00ff41";
+            ctx.fillRect(food.x * gridSize + 2, food.y * gridSize + 2, gridSize - 4, gridSize - 4);
+
+            // الثعبان
+            snake.forEach((part, index) => {
+                ctx.fillStyle = index === 0 ? "#00ff41" : "#00bb33";
+                ctx.shadowBlur = index === 0 ? 8 : 0;
+                ctx.shadowColor = "#00ff41";
+                ctx.fillRect(part.x * gridSize + 1, part.y * gridSize + 1, gridSize - 2, gridSize - 2);
+            });
+
+            ctx.shadowBlur = 0;
+        }
+
+        function changeDir(direction) {
+            if (isGameOver) return;
+            if (direction === 'UP' && dy === 0) { nextDx = 0; nextDy = -1; }
+            if (direction === 'DOWN' && dy === 0) { nextDx = 0; nextDy = 1; }
+            if (direction === 'LEFT' && dx === 0) { nextDx = -1; nextDy = 0; }
+            if (direction === 'RIGHT' && dx === 0) { nextDx = 1; nextDy = 0; }
+        }
+
+        // استجابة فورية فائقة السرعة للمس (Instant Touch)
+        let startX = 0;
+        let startY = 0;
+        let touchActive = false;
+
+        canvas.addEventListener("touchstart", function(e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            touchActive = true;
+            e.preventDefault();
+        }, { passive: false });
+
+        canvas.addEventListener("touchmove", function(e) {
+            if (!touchActive) return;
+
+            let currentX = e.touches[0].clientX;
+            let currentY = e.touches[0].clientY;
+
+            let diffX = currentX - startX;
+            let diffY = currentY - startY;
+
+            // مسافة حساسية منخفضة جداً (14 بكسل) لاستجابة فورية وسريعة
+            const threshold = 14;
+
+            if (Math.abs(diffX) > threshold || Math.abs(diffY) > threshold) {
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (diffX > 0) changeDir('RIGHT');
+                    else changeDir('LEFT');
+                } else {
+                    if (diffY > 0) changeDir('DOWN');
+                    else changeDir('UP');
+                }
+                // إعادة الضبط حتى تتوالى الحركات بسرعة بدون رفع اليد
+                startX = currentX;
+                startY = currentY;
+            }
+            e.preventDefault();
+        }, { passive: false });
+
+        canvas.addEventListener("touchend", function(e) {
+            touchActive = false;
+        });
+
+        // دعم أسهم لوحة المفاتيح
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowUp") changeDir('UP');
+            if (e.key === "ArrowDown") changeDir('DOWN');
+            if (e.key === "ArrowLeft") changeDir('LEFT');
+            if (e.key === "ArrowRight") changeDir('RIGHT');
+        });
+
+        // الإعدادات وتعديل السرعة
+        function openSettings() {
+            clearInterval(gameInterval);
+            document.getElementById("settingsModal").style.display = "flex";
+        }
+
+        function closeSettings() {
+            document.getElementById("settingsModal").style.display = "none";
+            if (!isGameOver) {
+                gameInterval = setInterval(gameLoop, gameSpeed);
+            }
+        }
+
+        function setSpeed(speed, activeId) {
+            gameSpeed = speed;
+            document.querySelectorAll(".speed-btn").forEach(btn => btn.classList.remove("active"));
+            document.getElementById(activeId).classList.add("active");
+        }
+
+        function endGame() {
+            isGameOver = true;
+            clearInterval(gameInterval);
+            document.getElementById("gameOverOverlay").style.display = "flex";
+        }
+
+        function restartGame() {
+            initGame();
+        }
+    </script>
+</body>
+</html>
